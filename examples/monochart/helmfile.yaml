@@ -1,0 +1,37 @@
+values:
+- myapp:
+    image:
+      repository: {{ .Values.repository | quote }}
+      tag: {{ .Values.tag | quote }}
+    env:
+      {{ .Values.env | toYaml | nindent 6 }}
+
+---
+environments:
+  default:
+  prod:
+
+repositories:
+- name: cloudposse-incubator
+  url: https://charts.cloudposse.com/incubator
+
+releases:
+- name: myapp
+  chart: cloudposse-incubator/monochart
+  values:
+  - image:
+      repository: {{ .Values.myapp.image.repository | quote }}
+      tag: {{ .Values.myapp.image.tag | quote }}
+      pullPolicy: IfNotPresent
+    env:
+      {{ .Values.myapp.env | toYaml | nindent 6 }}
+    replicaCount: 1
+    deployment:
+      enabled: true
+    service:
+      enabled: true
+      type: ClusterIP
+      ports:
+        default:
+          internal: 8080
+          external: 80

@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package platform;
+
+option go_package = "./platform";
+
+// Input is the input type used for the helmfile plugin.
+message Input {
+  map<string, Value> data = 1;
+
+  message Value {
+    oneof value {
+      string text = 1;
+    }
+  }
+}
+
+message Deployment {}
