@@ -9,6 +9,35 @@ You may prefer this over [`Exec`](https://www.waypointproject.io/plugins/exec) w
 - Ability to install required versions of Helmfile and Helm on deploy
 - Standardized usage of Helmfile in Waypoint
 
+## Installation
+
+There're two ways to install the plugin:
+
+1. Binary
+2. From Source
+
+### Binary
+
+- Grab the `waypoint-plugin-helmfile` binary from the [releases](https://github.com/mumoshu/waypoint-plugin-helmfile/releases) page
+- Put the binary under `$YOUR_PROJECT/.config/waypoint/plugins/`
+- Run `waypoint`
+
+### From Source
+
+To install the plugin from source, `git-clone` this project and run the following command:
+
+```bash
+$ TARGET=path/to/your/waypoint/project make install
+```
+
+The plugin binary gets installed into:
+
+```
+${TARGET}/.config/waypoint/plugins/waypoint-plugin-helmfile
+```
+
+so that the `waypoint` command can automatically discover the binary.
+
 ## Configuration
 
 ```hcl
@@ -108,22 +137,6 @@ env:
   WAYPOINT_DEPLOYMENT_ID: 01EN1T41QZCXGSJCP2BVBMK5JV
   WAYPOINT_SERVER_DISABLE: 1
 ```
-
-## Install
-
-To install the plugin, run the following command:
-
-```bash
-$ TARGET=path/to/your/waypoint/project make install
-```
-
-The plugin binary gets installed into:
-
-```
-path/to/your/waypoint/project/.config/waypoint/plugins/waypoint-plugin-helmfile
-```
-
-so that the `waypoint` command can automatically discover the binary.
 
 ## Deployment steps
 
