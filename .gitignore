@@ -3,3 +3,4 @@ data.db
 /examples/monochart/nodejs
 .waypoint
 /.idea
+/dist

@@ -3,23 +3,18 @@ module github.com/mumoshu/waypoint-plugin-helmfile
 go 1.14
 
 require (
-	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 	github.com/containerd/continuity v0.0.0-20200928162600-f2cc35102c2a // indirect
 	github.com/golang/protobuf v1.4.2
-	github.com/google/go-cmp v0.5.0
 	github.com/hashicorp/waypoint v0.1.2
 	github.com/hashicorp/waypoint-plugin-sdk v0.0.0-20201016002013-59421183d54f
+	github.com/mumoshu/shoal v0.2.13
 	github.com/opencontainers/runc v1.0.0-rc9 // indirect
 	github.com/sirupsen/logrus v1.7.0 // indirect
 	golang.org/x/net v0.0.0-20201016165138-7b1cca2348c0 // indirect
 	golang.org/x/sys v0.0.0-20201017003518-b09fb700fbb7 // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 	google.golang.org/grpc v1.32.0
 	google.golang.org/protobuf v1.25.0
-	gopkg.in/yaml.v2 v2.3.0
-	k8s.io/api v0.18.0
-	k8s.io/apimachinery v0.18.0
-	sigs.k8s.io/kustomize/api v0.6.3
-	github.com/mumoshu/shoal v0.2.13
 )
 
 // https://github.com/ory/dockertest/issues/208

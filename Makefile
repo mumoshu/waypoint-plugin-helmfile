@@ -29,6 +29,9 @@ test/monochart:
 	cd examples/monochart; waypoint init
 	cd examples/monochart; waypoint up
 
+.PHONY: test
+test: test/monochart
+
 kubernetes-example: DIR=$(shell pwd)/$(TARGET)
 kubernetes-example:
 ifeq (, $(K8S_EXAMPLE))
@@ -82,3 +85,26 @@ ifeq (, $(shell which protoc-gen-go))
 	rm -rf $$PROTOC_TMP_DIR ;\
 	}
 endif
+
+goreleaser:
+ifeq (, $(shell which goreleaser))
+	echo "Downloading goreleaser"
+	@{ \
+	set -e ;\
+	GORELEASER_TMP_DIR=$$(mktemp -d) ;\
+	cd $$GORELEASER_TMP_DIR ;\
+	go mod init tmp ;\
+	go get github.com/goreleaser/goreleaser ;\
+	rm -rf $$GORELEASER_TMP_DIR ;\
+	}
+endif
+
+.PHONY: release
+release:
+	echo Please set GPG_FINGERPRINT
+	gpg --armor --detach-sign
+	goreleaser release --rm-dist
+
+.PHONY: release/test
+release/test: goreleaser
+	goreleaser release --skip-publish --snapshot --rm-dist
