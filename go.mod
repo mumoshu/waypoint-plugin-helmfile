@@ -18,7 +18,9 @@ require (
 	k8s.io/api v0.18.0
 	k8s.io/apimachinery v0.18.0
 	sigs.k8s.io/kustomize/api v0.6.3
+	github.com/mumoshu/shoal v0.2.13
 )
 
 // https://github.com/ory/dockertest/issues/208
 replace golang.org/x/sys => golang.org/x/sys v0.0.0-20200826173525-f9321e4c35a6
+replace github.com/fishworks/gofish => github.com/mumoshu/gofish v0.13.1-0.20200908033248-ab2d494fb15c

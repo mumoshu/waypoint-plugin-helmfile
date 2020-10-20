@@ -33,6 +33,7 @@ const (
 type PlatformConfig struct {
 	HelmfileVersion string `hcl:"helmfile_version,optional"`
 	HelmVersion     string `hcl:"helm_version,optional"`
+	HelmDiffVersion string `hcl:"helm_diff_version,optional"`
 	HelmfileBin     string `hcl:"helmfile_bin,optional"`
 	HelmBin         string `hcl:"helm_bin,optional"`
 	Namespace       string `hcl:"namespace,optional"`
@@ -110,7 +111,7 @@ func (p *Platform) DeployFunc() interface{} {
 	return p.Deploy
 }
 
-func (p *Platform) Deploy(ctx context.Context, ui terminal.UI, src *component.Source, job *component.JobInfo, /*input *Input*/image *docker.Image, deployConfig *component.DeploymentConfig) (*k8s.Deployment, error) {
+func (p *Platform) Deploy(ctx context.Context, ui terminal.UI, src *component.Source, job *component.JobInfo, /*input *Input*/ image *docker.Image, deployConfig *component.DeploymentConfig) (*k8s.Deployment, error) {
 	// We'll update the user in real time
 	sg := ui.StepGroup()
 	defer sg.Wait()
@@ -173,31 +174,14 @@ func (p *Platform) Deploy(ctx context.Context, ui terminal.UI, src *component.So
 	s.Done()
 	s = sg.Add("Setting up Helmfile runtime configuration...")
 
-	todo := func() (string, error) { return "", nil }
-
-	helmfileBin := "helmfile"
-	if p.config.HelmfileBin != "" {
-		helmfileBin = p.config.HelmfileBin
-	} else if p.config.HelmVersion != "" {
-		helmfileBin, err = todo()
-		if err != nil {
-			return nil, status.Errorf(codes.FailedPrecondition, "failed fetching helmfile binary: %v", err)
-		}
-	}
-
-	helmBin := "helm"
-	if p.config.HelmBin != "" {
-		helmBin = p.config.HelmBin
-	} else if p.config.HelmVersion != "" {
-		helmBin, err = todo()
-		if err != nil {
-			return nil, status.Errorf(codes.FailedPrecondition, "failed fetching helm binary: %v", err)
-		}
+	helmfileBin, helmBin, err := prepareBinaries(&p.config)
+	if err != nil {
+		return nil, status.Errorf(codes.FailedPrecondition, "failed fetching required binaries: %v", err)
 	}
 
 	// Add global flags
 
-	args := []string{helmfileBin, "-f", p.config.Path, "--state-values-file", valuesPath}
+	args := []string{*helmfileBin, "-f", p.config.Path, "--state-values-file", valuesPath}
 
 	if ns := p.config.Namespace; ns != "" {
 		args = append(args, "-n", ns)
@@ -215,8 +199,8 @@ func (p *Platform) Deploy(ctx context.Context, ui terminal.UI, src *component.So
 		args = append(args, "--allow-no-matching-release")
 	}
 
-	if helmBin != "" {
-		args = append(args, "--helm-binary", helmBin)
+	if helmBin != nil && *helmBin != "" {
+		args = append(args, "--helm-binary", *helmBin)
 	}
 
 	if env != "" {

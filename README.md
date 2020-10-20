@@ -17,6 +17,22 @@ project = "myapp"
 app "myapp" {
   deploy {
     use "helmfile" {
+      // The semver constraint for the version of Helmfile to install and use.
+      // For example, ">= 0.132.0" instructs the plugin to install the latest Helmfile version that is greater than or equal to 0.132.0
+      //
+      // This feature is backed by the package manager [shoal](https://github.com/mumoshu/shoal)
+      // is able to fetch any packages hosted in https://github.com/fishworks/fish-food
+      helmfile_version = ""
+
+      // The semver constraint for the version of Helm. E.g. "3.3.4" or ">= 3.3.4"
+      helm_version = ""
+
+      // The path to the helmfile executable. Defaults to "helmfile" and conflicts with `helmfile_version`
+      helmfile_bin = ""
+
+      // The path to the helm executable. Defaults to "helm" and conflicts with `helm_version`
+      helm_bin = ""
+
       // Corresponds to `helmfile -e <WAYPOINT_WORKSPACE>`
       environment_template = "{{ .Workspace }}"
 
