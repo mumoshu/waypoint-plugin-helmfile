@@ -79,7 +79,6 @@ ifeq (, $(shell which protoc-gen-go))
 	set -e ;\
 	PROTOC_TMP_DIR=$$(mktemp -d) ;\
 	cd $$PROTOC_TMP_DIR ;\
-	cp bin/protoc $(GOBIN)/protoc ;\
 	go mod init tmp ;\
 	go get github.com/golang/protobuf/protoc-gen-go google.golang.org/grpc/cmd/protoc-gen-go-grpc ;\
 	rm -rf $$PROTOC_TMP_DIR ;\
