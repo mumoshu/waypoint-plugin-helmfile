@@ -21,4 +21,4 @@ jobs:
         mkdir -p ~/go/bin
 
     - name: Build
-      run: make release/test
+      run: PATH=$PATH:$HOME/go/bin make release/test

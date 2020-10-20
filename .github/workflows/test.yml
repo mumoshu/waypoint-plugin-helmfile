@@ -33,7 +33,7 @@ jobs:
     - name: Test
       run: |
         mkdir -p ~/go/bin
-        make test
+        PATH=$PATH:$HOME/go/bin make test
 
     - name: Build
-      run: make build
+      run: PATH=$PATH:$HOME/go/bin make build
