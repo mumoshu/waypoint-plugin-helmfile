@@ -2,7 +2,15 @@
 
 `waypoint-plugin-helmfile` is a [Waypoint](https://github.com/hashicorp/waypoint) plugin to trigger [Helmfile](https://github.com/roboll/helmfile) deployments.
 
-The implementation is conceptually very similar to the builtin [Exec](https://www.waypointproject.io/plugins/exec) plugin as this plugin shells out to run `Helmfile`.
+## Introduction
+
+[Waypoint](https://github.com/hashicorp/waypoint) is something more than `make` . It is rather a "pluggable PaaS" powered by waypoint cli, the [waypoint-entrypoint](https://www.waypointproject.io/docs/entrypoint) binary embedded into application container images, and the [waypoint-server](https://www.waypointproject.io/docs/server). It provides us a framework to connect various tools to finally produce a Heroku-like experience.
+
+This plugin allows you to deploy waypoint-built container images via [Helmfile](https://github.com/roboll/helmfile), in a way that the deployed application is connected to the waypoint server.
+
+### Comparison with the builtin `Exec` plugin
+
+This plugin's implementation is conceptually very similar to the builtin [Exec](https://www.waypointproject.io/plugins/exec) plugin as this plugin shells out to run `Helmfile`.
 
 You may prefer this over [`Exec`](https://www.waypointproject.io/plugins/exec) when you want:
 
