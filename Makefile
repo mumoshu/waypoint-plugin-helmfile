@@ -107,4 +107,4 @@ release:
 
 .PHONY: release/test
 release/test: goreleaser
-	goreleaser release --skip-publish --snapshot --rm-dist
+	goreleaser release --skip-publish --snapshot --rm-dist --skip-sign
