@@ -81,10 +81,33 @@ app "myapp" {
 `values_template` is important to pass required environment variables to your application.
 
 Waypoint, especially commands like `waypoint logs`, requires that the application's container image to be built by
-`waypoint` so that the image has the "waypoint entrypoint" embedded.
+`waypoint` so that the image has the "waypoint entrypoint" embedded. Please also see [this thread](https://discuss.hashicorp.com/t/waypoint-entrypoint-config-for-exec-plugin/16178/3) for how the entrypoint needs to be configured.
 
 Within `values_template`, you can use the same set of template parameters as the Exec plugin.
 Please refer to the [Templates](https://www.waypointproject.io/plugins/exec#templates) section of the Exec plugin documentato for more information.
+
+For exmaple, a `values_template` like the below:
+
+```
+image:
+  repository: {{.Input.DockerImageName}}
+  tag: {{.Input.DockerImageTag}}
+env:
+{{- range $k, $v := .Env }}
+  {{ $k }}: {{ $v }}
+{{- end }}
+```
+
+would produce outputs like:
+
+```yaml
+image:
+  repository: waypoint-helmfile-monochart-example
+  tag: 1
+env:
+  WAYPOINT_DEPLOYMENT_ID: 01EN1T41QZCXGSJCP2BVBMK5JV
+  WAYPOINT_SERVER_DISABLE: 1
+```
 
 ## Install
 

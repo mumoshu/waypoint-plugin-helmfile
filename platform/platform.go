@@ -8,6 +8,8 @@ import (
 	"github.com/hashicorp/waypoint-plugin-sdk/component"
 	"github.com/hashicorp/waypoint-plugin-sdk/terminal"
 	"github.com/hashicorp/waypoint/builtin/docker"
+	"golang.org/x/xerrors"
+	"runtime/debug"
 
 	//"github.com/hashicorp/waypoint/builtin/docker"
 	"github.com/hashicorp/waypoint/builtin/k8s"
@@ -94,6 +96,18 @@ func (p *Platform) ConfigSet(config interface{}) error {
 		}
 	}
 
+	if c.HelmfileBin == "" {
+		c.HelmfileBin = "helmfile"
+	}
+
+	if c.HelmBin == "" {
+		c.HelmBin = "helm"
+	}
+
+	if c.Path == "" {
+		c.Path = "helmfile.yaml"
+	}
+
 	data := c.ValuesTemplate.Data
 	path := c.ValuesTemplate.Path
 	if data == "" && path == "" {
@@ -111,7 +125,13 @@ func (p *Platform) DeployFunc() interface{} {
 	return p.Deploy
 }
 
-func (p *Platform) Deploy(ctx context.Context, ui terminal.UI, src *component.Source, job *component.JobInfo, /*input *Input*/ image *docker.Image, deployConfig *component.DeploymentConfig) (*k8s.Deployment, error) {
+func (p *Platform) Deploy(ctx context.Context, ui terminal.UI, src *component.Source, job *component.JobInfo, /*input *Input*/ image *docker.Image, deployConfig *component.DeploymentConfig) (d *k8s.Deployment, finalErr error) {
+	defer func() {
+		if err := recover(); err != nil {
+			finalErr = status.Errorf(codes.Internal, "unhandled error: %v\n%s", err, debug.Stack())
+		}
+	}()
+
 	// We'll update the user in real time
 	sg := ui.StepGroup()
 	defer sg.Wait()
@@ -142,12 +162,12 @@ func (p *Platform) Deploy(ctx context.Context, ui terminal.UI, src *component.So
 	data.PopulateImage(image)
 
 	// Render our template
-	valuesPath, closer, err := p.renderTemplate(p.config.ValuesTemplate, &data)
+	valuesPath, closer, err := p.renderTemplate(id, p.config.ValuesTemplate, &data)
 	if closer != nil {
-		defer closer()
+		//defer closer()
 	}
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "rendering template: %v", err)
+		return nil, status.Errorf(codes.Internal, "rendering template: %+v", err)
 	}
 
 	s.Done()
@@ -229,12 +249,13 @@ func (p *Platform) Deploy(ctx context.Context, ui terminal.UI, src *component.So
 	helmfileCmd := exec.CommandContext(ctx,
 		args[0], args[1:]...,
 	)
+	helmfileCmd.Dir = p.config.Dir
 	//helmfileCmd.Stdout = outputFile
 	helmfileCmd.Stderr = &stderr
 	helmfileCmd.Stdout = os.Stdout
 
 	if err := helmfileCmd.Run(); err != nil {
-		return nil, err
+		return nil, status.Errorf(codes.Aborted, "running helmfile-apply: %+v\nSTDERR:\n%s", err, stderr.String())
 	}
 
 	s.Update("Successfully finished running helmfile")
@@ -246,11 +267,11 @@ func (p *Platform) Deploy(ctx context.Context, ui terminal.UI, src *component.So
 	}, nil
 }
 
-func (p *Platform) renderTemplate(tpl *ValuesTemplate, data *tplData) (string, func(), error) {
+func (p *Platform) renderTemplate(id string, tpl *ValuesTemplate, data *tplData) (string, func(), error) {
 	// Create a temporary directory to store our renders
 	td, err := ioutil.TempDir("", "waypoint-helmfile")
 	if err != nil {
-		return "", nil, err
+		return "", nil, xerrors.Errorf("creating temp dir: %w", err)
 	}
 	closer := func() {
 		os.RemoveAll(td)
@@ -281,6 +302,8 @@ func (p *Platform) renderTemplate(tpl *ValuesTemplate, data *tplData) (string, f
 			}
 		}
 	} else {
+		path = filepath.Join(td, id+".yaml")
+
 		tmpl, err = template.New("tmpl").Parse(tpl.Data)
 		if err != nil {
 			return "", closer, status.Errorf(codes.InvalidArgument, "parsing values_template.data: %v", err)
@@ -290,11 +313,16 @@ func (p *Platform) renderTemplate(tpl *ValuesTemplate, data *tplData) (string, f
 	// Create our target path
 	f, err := os.Create(path)
 	if err != nil {
-		return "", closer, err
+		return "", closer, xerrors.Errorf("creating %s: %w", path, err)
 	}
 	defer f.Close()
 
-	return path, closer, tmpl.Execute(f, data)
+	err = tmpl.Execute(f, data)
+	if err != nil {
+		err = xerrors.Errorf("executing template: %w", err)
+	}
+
+	return path, closer, err
 }
 
 var (

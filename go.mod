@@ -3,6 +3,7 @@ module github.com/mumoshu/waypoint-plugin-helmfile
 go 1.14
 
 require (
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 	github.com/containerd/continuity v0.0.0-20200928162600-f2cc35102c2a // indirect
 	github.com/golang/protobuf v1.4.2
 	github.com/google/go-cmp v0.5.0
@@ -23,4 +24,5 @@ require (
 
 // https://github.com/ory/dockertest/issues/208
 replace golang.org/x/sys => golang.org/x/sys v0.0.0-20200826173525-f9321e4c35a6
+
 replace github.com/fishworks/gofish => github.com/mumoshu/gofish v0.13.1-0.20200908033248-ab2d494fb15c

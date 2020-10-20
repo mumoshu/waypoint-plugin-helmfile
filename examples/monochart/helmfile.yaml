@@ -1,8 +1,8 @@
 values:
 - myapp:
     image:
-      repository: {{ .Values.repository | quote }}
-      tag: {{ .Values.tag | quote }}
+      repository: {{ .Values.image.repository | quote }}
+      tag: {{ .Values.image.tag | quote }}
     env:
       {{ .Values.env | toYaml | nindent 6 }}
 

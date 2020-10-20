@@ -39,6 +39,10 @@ func (d *tplData) PopulateImage(image *docker.Image) {
 		return
 	}
 
+	if d.Input == nil {
+		d.Input = map[string]interface{}{}
+	}
+
 	d.Input["DockerImageName"] = image.GetImage()
 	d.Input["DockerImageTag"] = image.GetTag()
 }

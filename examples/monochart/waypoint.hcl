@@ -14,7 +14,15 @@ app "web" {
     # we'll build using a Dockerfile and keeping it in a local registry.
     build {
         use "pack" {}
-        
+
+        registry {
+            use "docker" {
+                image = "waypoint-helmfile-monochart-example"
+                tag = "1"
+                local = true
+            }
+        }
+
         # Uncomment below to use a remote docker registry to push your built images.
         #
         # registry {
